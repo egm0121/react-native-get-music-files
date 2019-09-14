@@ -47,6 +47,7 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
     private boolean getDateFromSong = false;
     private boolean getCommentsFromSong = false;
     private boolean getLyricsFromSong = false;
+    private int resizeDimension = 0;
     private int minimumSongDuration = 0;
     private int songsPerIteration = 0;
     private int version = Build.VERSION.SDK_INT;
@@ -98,7 +99,9 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         if (options.hasKey("album")) {
             getAlbumFromSong = options.getBoolean("album");
         }
-
+        if (options.hasKey("coverSize")){
+            resizeDimension = options.getInt("coverSize");
+        }
         /*if (options.hasKey("date")) {
             getDateFromSong = options.getBoolean("date");
         }
@@ -248,7 +251,7 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
                                             try {
                                                 String pathToImg = Environment.getExternalStorageDirectory() + "/" + songId + ".jpg";
-                                                encoded = fcm.saveImageToStorageAndGetPath(pathToImg, songImage);
+                                                encoded = fcm.saveImageToStorageAndGetPath(pathToImg, songImage, resizeDimension);
                                                 items.putString("cover", "file://" + encoded);
                                             } catch (Exception e) {
                                                 // Just let images empty
