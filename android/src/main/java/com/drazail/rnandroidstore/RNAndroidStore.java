@@ -365,7 +365,7 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
         if (options.hasKey("artist") && !options.hasKey("album")) {
             String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
                     MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
-                    MediaStore.Audio.Media._ID };
+                    MediaStore.Audio.Media._ID, MediaStore.Audio.Media.ALBUM_ID };
 
             Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     projection, MediaStore.Audio.Albums.ARTIST + " Like ?",
@@ -451,7 +451,7 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
         if (options.hasKey("artist") && options.hasKey("album")) {
             String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
                     MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
-                    MediaStore.Audio.Media._ID };
+                    MediaStore.Audio.Media._ID, MediaStore.Audio.Media.ALBUM_ID };
 
             Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     projection,
@@ -467,6 +467,7 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
                     item.putString("duration", String.valueOf(cursor.getString(3)));
                     item.putString("path", String.valueOf(cursor.getString(4)));
                     item.putString("id", String.valueOf(cursor.getString(5)));
+                    item.putString("albumId", String.valueOf(cursor.getString(6)));
                     jsonArray.pushMap(item);
                 } while (cursor.moveToNext());
             } else {
@@ -583,7 +584,7 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
 
         String[] projection = { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media._ID, };
+                MediaStore.Audio.Media._ID, MediaStore.Audio.Media.ALBUM_ID, };
 
         String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
         Cursor musicCursor = musicResolver.query(musicUri, projection, selection, null, sortOrder);
@@ -633,55 +634,37 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
                                 items.putString("path", songPath);
                                 items.putString("fileName", fileName);
 
-                                // String songTimeDuration =
-                                // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION);
+                                
                                 String songTimeDuration = musicCursor.getString(3);
                                 int songIntDuration = Integer.parseInt(songTimeDuration);
 
                                 if (getAlbumFromSong) {
                                     String songAlbum = musicCursor.getString(2);
-
-                                    // String songAlbum =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
+                                    String songAlbumId = musicCursor.getString(6);
+                                    
                                     items.putString("album", songAlbum);
+                                    items.putString("albumId", songAlbumId);
                                 }
 
                                 if (getArtistFromSong) {
                                     String songArtist = musicCursor.getString(1);
-                                    // String songArtist =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
                                     items.putString("author", songArtist);
                                 }
 
                                 if (getTitleFromSong) {
                                     String songTitle = musicCursor.getString(0);
-                                    // String songTitle =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
                                     items.putString("title", songTitle);
                                 }
 
                                 if (getGenreFromSong) {
                                     String songGenre = mmr.extractMetadata(mmr.METADATA_KEY_GENRE);
-                                    // String songGenre =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_GENRE);
                                     items.putString("genre", songGenre);
                                 }
 
                                 if (getDurationFromSong) {
                                     items.putString("duration", songTimeDuration);
                                 }
-
-                                /*
-                                 * if (getCommentsFromSong) { items.putString("comments",
-                                 * mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_COMMENT)); }
-                                 * 
-                                 * if (getDateFromSong) { items.putString("date",
-                                 * mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DATE)); }
-                                 * 
-                                 * if (getLyricsFromSong) { //String lyrics =
-                                 * mp3file.getID3v2Tag().getSongLyric(); //items.putString("lyrics", lyrics); }
-                                 */
-
+                                
                                 if (getCoversFromSongs) {
                                     getCoverByPath(getBluredImages, coversFolder, coversResizeRatio, getIcons,
                                             iconsSize, coversSize, songPath, songId, items);
